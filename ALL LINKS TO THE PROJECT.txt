@@ -1,0 +1,8 @@
+Link to GitHub documentation of entire project:
+https://github.com/RudraPatel20/HCIP-5122-Final-Project-Rudra-and-Vandana
+
+Shinyapps.io link: 
+https://rudrapatel.shinyapps.io/HCIP-5122-Final-Project-Rudra-and-Vandana/
+
+Link to the final report published on RPubs:
+https://rpubs.com/RudraPatel/final_report

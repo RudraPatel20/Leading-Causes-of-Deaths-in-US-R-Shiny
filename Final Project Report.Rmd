@@ -1,0 +1,183 @@
+---
+title: Analyzing the leading causes of death in the U.S. & Comparing the death rate
+  of Heart Diseases in the World
+author: "Rudra Patel and Vandana Sundaresan"
+date: "8/1/2020"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# **1. Introduction: Domain problem characterization**
+
+Around 74% of all deaths in the United States occur as a result of 10 major causes. Considering the increase in mortality rates, the __*domain*__ of our project are the deaths in the United States. Over the past 5 years, the main causes of death in the United States have remained fairly consistent. Heart disease is the leading cause of death for both men and women. This is the case in the U.S. and worldwide. More than half of all people who die due to heart disease are men. The top 5 leading causes of death in the United States are as follows, heart disease, cancer, CLRD, stroke, and unintentional injuries. Lifestyle habits will most likely have the greatest impact on a person’s risk of developing some of these conditions. Eating healthy foods in optimal proportions, sleeping well, exercising regularly, drinking in moderation, avoiding tobacco products & other drugs, and building healthy and positive relationships with their surroundings can help improve quality of life and reduce the risk of death. One must also establish a relationship with a doctor and undergo regular screenings for genetic conditions that can help address these issues before they develop.
+
+![Leading Causes of Death in the United States](./images/causes.jpg)
+
+The target users for the project are the common people and public health experts. Seeing the visualizations, common people could draw out inferences about the real problem in the country and could take the necessary steps to improve their lifestyle. This could help in increasing their life expectancy. Our second target user, the public health experts are a special focus on our analysis. Using the data pictured in front of them, they could take the necessary steps to find out the root cause that leads to an increasing number of deaths in the country. This could help the upcoming Gen Z population to be more aware and cautious regarding their health conditions.
+
+
+The major intention of our project is to deliver the appropriate message in the most sophisticated way so that people from all age groups have easy access and understanding of the current scenario of deaths in the world. As per our analysis of the data available, the most prevalent cause in the U.S. is heart disease. So, the second problem which our web app tries to tackle is to inculcate the world data on death rate due to heart disease and to picture it in the most convenient way possible to the users. The app intends to solve the following questions:
+
+
+  + Which is the most leading cause of death in the United States?
+  + What does Death rate mean?
+  + What is the trend in death rates for over two decades in the country?
+  + Which state accounts for the highest death count in the U.S.?
+  + Which country and the continent have the highest number of death rates for the most leading cause of death?
+
+***
+
+## **2. Data/operation abstraction design**
+
+The dataset was retrieved from two websites, [Centre for Disease Control and Prevention](https://data.cdc.gov/NCHS/NCHS-Leading-Causes-of-Death-United-States/bi63-dtpu) and [Institute of Health Metrics and Evaluation](http://ghdx.healthdata.org/gbd-results-tool>).
+
+
+Both of the collected datasets represent age-adjusted death rates which are the deaths per 100,000 population in a region.
+
+### 2.1 Dataset 1
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+library(readr)
+data <- read.csv("./data/NCHS_-_Leading_Causes_of_Death__United_States (2).csv")
+knitr::kable(head(data), "pipe")
+```
+
+This dataset presents the age-adjusted death rates for the 10 leading causes of death in the United States beginning in 1999 till 2017. The data collected is based on the information from all the resident death certificates that were filed in all the states of the country.
+
+```{r echo=FALSE}
+sapply(data, class)
+```
+
+
+The data contained 6 columns by the name, Year, 113 Cause Name, Cause Name, State, Deaths, and Age-adjusted Death Rate. The above chunk output mentions the data type of each column in the dataset. The Year column had all the years listed from 1999 to 2017. The 113 Cause Name and the Cause Name columns are almost similar. The only difference between them is, the 113 Cause Name is more descriptive, which in our data visualization project proved to be of no use. The elimination of that column was the basic step in our project. State column has a listing of all the states in the U.S. and the Deaths and the age-adjusted death rate reflected the counts in that particular year for each state.
+
+
+Causes of death are classified by the International Classification of Diseases, Tenth Revision (ICD–10), and are ranked according to the number of deaths assigned to rankable causes. The cause of death statistics is based on the underlying cause of death. The 10 leading causes recognized by CDC include Unintentional injuries, Heart disease, stroke, Alzheimer's disease, Diabetes. Influenza and pneumonia, Suicide, Cancer, Kidney disease, CLRD (Chronic lower respiratory disease).
+
+
+Age-adjusted death rates, i.e. the rate of deaths per 100,000 population is calculated based on the U.S. 2010 Census estimate. Rates for census years are based on populations enumerated in the corresponding censuses. Rates for non-census years before 2010 are revised using updated intercensal population estimates and may differ from rates previously published.
+
+### 2.2 Dataset 2
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+data_1 <- read.csv("./data/cardiovascular-disease-death-rates.csv")
+knitr::kable(head(data_1), "pipe")
+```
+
+While working on the dataset 1, we inferred that the deaths due to heart diseases are more prevalent in each state of the U.S. So, to explore more on this topic, we aimed to focus on mortality rates due to heart diseases. The figure above represents the dataset used in our project which is retrieved from the Institute of Health Metrics and Evaluation.
+
+```{r echo=FALSE}
+sapply(data_1, class)
+```
+
+The above code chunk displays the data type of each column in the dataset. The data is from the year 1990 to 2017. For our project, we decided to focus on the years from 1999 to 2017, similar to those of dataset 1. The dataset has 4 columns by the name, Entity, Code, Year, and Deaths. The Entity column has the names of all the 231 countries in the world. The Code field contains a three-letter code which is derived by ISO 3166-1 alpha-3. This three-letter code proved out to be useful for our data visualization as it helps in identifying each country when used with appropriate libraries. The Deaths columns have the death rate count per 100,000 population for country per year.
+
+
+The name of the last column is too cumbersome to read and write. So renaming the column to **'Deaths'** was our first step in the preparation of our data for visualization.
+
+***
+
+## **3. Encoding/Interaction design**
+
+To answer the questions (section 1) aroused for our project, we aimed to select the design that is most appropriate for a consumer and for public health experts. So, to depict maximum information concisely, we developed a shiny app in the R language. Shiny's interactivity features will help users to analyze the data in the way they want to.
+
+
+Our next hurdle was to select the plots that are easy to visualize and can be interpreted easily. The bar chart, line chart, U.S. map, and the world map are the four graph types that would help to draw inferences from the data easily. Thus, we could say that the app would be user friendly because:
+
+
+1. The __*bar chart*__ was used to analyze the count of 10 leading causes of death in the U.S. for a particular year and the state the user selects. Moreover, users have options to compare the selected causes of death in the bar chart by deselecting the cause names from the sidebar section.
+
+
+2. The __*line chart*__ was used to analyze the trends for the selected state by the user from 1999 to 2017. This chart shows the trend of death rate for all the causes of deaths.
+
+
+3. The __*U.S. map*__ shows the cumulative death rate in each state in the U.S. This can be done by just hovering over the map and the state area where the cursor falls, shows a text box displaying the death rate for that particular state in the selected year by the user.
+
+
+4. The __*world map*__ is used to draw comparisons between the death rate due to heart diseases all over the world until 2017. The data for this plot comes from dataset 2. Heart diseases are the leading cause of death in the country. To know the current condition of the rest of the world could help in understanding where each country stands. This graph also portrays the health care system of each country and the steps taken by the health experts and the government to tackle this fatal disease.
+
+***
+
+## **4. Algorithmic design**
+
+The major motive of the app was to give accurate information most conveniently. For this, we kept the design of the app as simple as possible. This was made possible with the help of different libraries listed below in the R program.
+
+```{r message=FALSE, warning=FALSE}
+
+library(shiny)
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(plotly)
+library(shinythemes)
+library(maps)
+library(mapproj)
+library(viridis)
+library(rworldmap)
+```
+
+We included four tabs in the main panel to derive as much information as possible. The tabs were: Trends, U.s. Deaths, U.S. Death Rate, and World data on Heart Disease. The sidebar is dedicated for the user to select the desired criteria from the data. As shown in the figure below, there is a sidebar panel from where one can select the desired year to be analyzed from 1999 to 2017. Sliding the button on the bar gives the output for the selected year. Next, a user can analyze the trends of deaths in a particular state by selecting the state name from the select input option available under the 'Select a Region' section. Here, the names of all 51 states are included. Along with this, there is an option by the name 'All States' which gives the aggregate count of deaths in the whole United States. The checkbox group input present in the section 'Select Causes to Display' includes the name of all the 10 leading causes of deaths in the U.S. By default all the inputs are checked and the results are displayed for all the causes. Deselecting the irrelevant causes for the analysis will help in better comparison of the other causes of death. Hence, giving a clear insight into the scenario for each state in the country.
+
+![Snapshot 1: Main Page of web app](./images/webapp1.png)
+
+In the first tab of the main panel, the trends tab contains two plots. This tab is dedicated to drawing out comparisons on different causes for the selected state and year. Inferences drawn from these plots could help in a better understanding of the further plots. The bar chart depicts the death count for each cause. This plot is built using ggplot2 and plotly libraries. The reordering of the bars helps to better conclude the results, keeping the cause with the highest count at the top and then arranging the bars in decreasing order. On hovering the cursor on the graph, a user can get the exact number for that particular cause. Moreover, the y-axis of the graph can be manipulated by deselecting the cause names from the checkbox group input available in the sidebar section. The second plot, the line chart shows the trends in death rate per 100,000 population in each state. Thus, an overview of the death rate can be received by this plot. Hovering the cursor on the trend line gives the death rate count and the year in the text box.
+
+![Snapshot 2: Second tab of web app](./images/webapp2.png)
+
+The above-mentioned figure shows the layout of the second tab of the web app. This tab portrays the death count in each state using the U.S. map. This map has been built using maps and mapproj libraries. The maps libraries helped in retrieving the latitudes and longitudes of all the states and then mapproj was used to construct the graph interactively. Hovering over each state shows the death count in that particular state for the selected year from the slidebar input. The inclusion of text boxes above the graph makes it more informative. The text box states the selected year and the total deaths in the whole United States for that year.
+
+![Snapshot 3: Third tab of web app](./images/webapp3.png)
+
+The third tab of the web app is almost similar to the previous one. The only difference is that this tab shows the death rate for a particular year. The Viridis color palette used in both the maps helps to show the state with the highest and the lowest death rate.
+
+![Snapshot 4: Fourthtab of web app](./images/webapp4.png)
+
+The last tab in the web app shows the deaths due to heart disease in the entire world. The data for this plot comes from dataset 2. Heat color palette is used to show the difference in death rates in each continent and each country. This could help to easily make out the country with the highest and lowest deaths. The three text boxes make the graph more descriptive. They show the selected year, the country with the highest death rate, and the count for that country. This interactive plot gives the country name and the death rate when the cursor hovers on the graph.
+***
+
+## **5. User evaluation**
+
+Evaluation of the prepared app is the most crucial step as this decides whether the apps fulfill the users' perception or not. Designing the app as per users' wants could help in better achieving the successful results. Similarly, the evaluation of our web app is carried out using the 5 main criteria: Functionality, Effectiveness, Efficiency, Usability, Usefulness.
+
+
+1. *Functionality*
+  + The web app requires the user to select the fields from the sidebar section. Hence, the graph to be visualized will be as per the person's wants. Also, the plotly library makes it easy for a user to easily get the numbers for the desired category. Therefore, the apps fulfill all the functionality that a user wants to analyze the visual representations.
+
+
+2. *Effectiveness*
+  + The visual representations used in the app are simple are the most commonly used. Hence, a user can easily visualize the graph and infer the conclusions by themselves without the need for extra instructions. The bar chart, line chart, and the maps are considered to be the basic maps and easier to understand than any other plots. The selection of these plots is done keeping the target audience in mind, the common people. In addition, easy interpretation of complex data also helps the public health experts to do the tasks with ease and to take necessary steps to reduce the numbers in the country.
+ 
+  
+3. *Efficiency*
+  + The results are generated within seconds in the app. As the user makes the changes in the sidebar panel, the changes immediately reflected in the main panel either by changing the bar positions, trend line changes, or by changing the color of each state as per the death count and the scale in the legend box. Thus, more information can be retrieved in less time as results are generated very quickly.
+  
+
+4. *Usability*
+  + Plotly library makes the graph more user friendly and intuitive in design. From a user's perspective, analyzing the bar graph and line charts are more convenient methods of visual representations. Also, using the colors in the maps makes the graph to be more attractive and simple to understand.
+
+
+5. *Usefulness*
+  + The graphs provided helps the common people to know the current scenario of deaths in the country. Knowing this data, the user could be made aware of threatening diseases and can be prevented from these conditions. This could prove to improve the life expectancy of an individual. The public health experts could also take notes about the death trends and can take precautionary steps in the states with the highest number of deaths. This could reduce the hospital bills, lees mortality rates, and a better lifestyle of the citizens of the country.
+ 
+***
+
+## **6. Objectives**
+
+The main objective of this project is to make the graph interactive and user friendly. The idea is to obtain maximum information from the minimum number of clicks. The user would receive a brief description of the data that they are analyzing. After this visualization, the users were able to identify the exact trend and value of the death rates, along with drawing a comparison for death rates due to cardiovascular diseases across the world. This visualization could assist health professionals in obtaining a clear overview of the causes of death in The United States and help to improve the country’s overall health.
+
+***
+
+## **7. Future work**
+
+Given more time, we have planned to make this app more informative by adding more plots for each cause of death in a separate tab. Analyzing the data provided, a user can gain the utmost knowledge about each cause and can take precautionary steps to increase their life expectancy.
+
+
+Many studies prove that heart diseases, the most leading cause in the U.S. are more prevalent in obese people. Our motive is to add a Body Mass Index (BMI) calculator to the app. Along with the app, necessary health tips and advice can also be given which could help in decreasing the numbers.
+
+
+Moreover, we also intended a link which when clicked, will redirect the user to a telemedicine portal, where health experts can solve the queries a user has. This could prove out to be an efficient way to know about the health status of the body and an important step towards spreading health education and awareness.
